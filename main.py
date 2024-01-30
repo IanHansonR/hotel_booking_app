@@ -9,7 +9,7 @@ df_secure_card = pd.read_csv("card_security.csv", dtype=str)
 class Hotel:
     def __init__(self, hotel_id_local):
         self.hotel_id = hotel_id_local
-        self.hotel_name = df.loc[df["id"] == self.hotel_id, "name"].squeeze()
+        self.name = df.loc[df["id"] == self.hotel_id, "name"].squeeze()
 
     def book(self):
         df.loc[df["id"] == self.hotel_id, "available"] = "no"
@@ -24,6 +24,11 @@ class Hotel:
             return False
 
 
+class SpaHotel(Hotel):
+    def book_spa_package(self):
+        pass
+
+
 class ReservationTicket:
     def __init__(self, customer_name_local, hotel_object):
         self.customer_name = customer_name_local
@@ -33,7 +38,7 @@ class ReservationTicket:
         content = f"""
         Thank you for booking with us!
         Customer Name: {self.customer_name}
-        Hotel: {self.hotel.hotel_name}"""
+        Hotel: {self.hotel.name}"""
         return content
 
 
@@ -60,27 +65,24 @@ class SecureCreditCard(CreditCard):
             return False
 
 
-class SpaHotel(Hotel):
-    pass
-
-
 class SpaBooking(Hotel):
-    def __init__(self, customer_name, hotel_name):
+    def __init__(self, customer_name, hotel_object):
         self.customer_name = customer_name
-        self.hotel_name = hotel_name
+        self.hotel = hotel_object
+
     def generate(self):
         content = f"""
         Thank you for your spa reservation!
         Here is your spa booking details:
         Name: {self.customer_name}
-        Hotel: {self.hotel_name}
+        Hotel: {self.hotel.name}
         """
         return content
 
 
 print(df)
 hotel_id = input("Enter hotel ID: ")
-hotel = Hotel(hotel_id)
+hotel = SpaHotel(hotel_id)
 
 if hotel.available():
     credit_card = SecureCreditCard(number="1234567890123456")
@@ -94,7 +96,8 @@ if hotel.available():
             print(reservation_ticket.generate())
             spa_inquiry = input("Would you like to book a spa package?(y/n): ")
             if spa_inquiry == "y":
-                spa_booking = SpaBooking(customer_name=name, hotel_name=hotel.hotel_name)
+                hotel.book_spa_package()
+                spa_booking = SpaBooking(customer_name=name, hotel_object=hotel)
                 print(spa_booking.generate())
             else:
                 print("Thanks again for booking with us. If you change your mind about the spa package feel free to "
