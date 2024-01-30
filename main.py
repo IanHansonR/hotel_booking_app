@@ -9,7 +9,7 @@ df_secure_card = pd.read_csv("card_security.csv", dtype=str)
 class Hotel:
     def __init__(self, hotel_id_local):
         self.hotel_id = hotel_id_local
-        self.name = df.loc[df["id"] == self.hotel_id, "name"].squeeze()
+        self.hotel_name = df.loc[df["id"] == self.hotel_id, "name"].squeeze()
 
     def book(self):
         df.loc[df["id"] == self.hotel_id, "available"] = "no"
@@ -33,7 +33,7 @@ class ReservationTicket:
         content = f"""
         Thank you for booking with us!
         Customer Name: {self.customer_name}
-        Hotel: {self.hotel.name}"""
+        Hotel: {self.hotel.hotel_name}"""
         return content
 
 
@@ -60,7 +60,22 @@ class SecureCreditCard(CreditCard):
             return False
 
 
+class SpaHotel(Hotel):
+    pass
 
+
+class SpaBooking(Hotel):
+    def __init__(self, customer_name, hotel_name):
+        self.customer_name = customer_name
+        self.hotel_name = hotel_name
+    def generate(self):
+        content = f"""
+        Thank you for your spa reservation!
+        Here is your spa booking details:
+        Name: {self.customer_name}
+        Hotel: {self.hotel_name}
+        """
+        return content
 
 
 print(df)
@@ -77,6 +92,13 @@ if hotel.available():
             hotel.book()
             reservation_ticket = ReservationTicket(customer_name_local=name, hotel_object=hotel)
             print(reservation_ticket.generate())
+            spa_inquiry = input("Would you like to book a spa package?(y/n): ")
+            if spa_inquiry == "y":
+                spa_booking = SpaBooking(customer_name=name, hotel_name=hotel.hotel_name)
+                print(spa_booking.generate())
+            else:
+                print("Thanks again for booking with us. If you change your mind about the spa package feel free to "
+                      "call us or speak with one of the hotel representatives on site. We hope you enjoy your stay.")
         else:
             print("Card Authentication Failed.")
     else:
